@@ -11,6 +11,8 @@ class Sudoku():
         self.vertices = []
         self.quadrants = []
         self.subjects = []
+        self.cursor = -1
+        self.forward = True
 
     def check_solution(self):
         correct = True
@@ -29,11 +31,11 @@ class Sudoku():
 
             for i in range(81):
                 if self.vertices[i]['coords'][0] == row:
-                    h_slice.append(self.vertices[i]['current_value'])
+                    h_slice.append(str(self.vertices[i]['current_value']))
                 if self.vertices[i]['coords'][1] == col:
-                    v_slice.append(self.vertices[i]['current_value'])
+                    v_slice.append(str(self.vertices[i]['current_value']))
                 if self.vertices[i]['quadrant'] == quadrant:
-                    q_slice.append(self.vertices[i]['current_value'])
+                    q_slice.append(str(self.vertices[i]['current_value']))
 
             slices = []
             slices.append(''.join(h_slice))
@@ -48,7 +50,7 @@ class Sudoku():
                     if len(result) > 1:
                         correct = False
                         #print(vertex, digit)
-        print(correct)
+        #print(correct)
         return correct
 
     def create_coordinates(self):
@@ -71,7 +73,7 @@ class Sudoku():
             dict.update({'preset': preset})
             dict.update({'quadrant': int()})
             dict.update({'preset_value': self.presets[i]})
-            dict.update({'current_value': self.presets[i]})
+            dict.update({'current_value': int(self.presets[i])})
 
             self.vertices.append(dict)
 
@@ -80,7 +82,7 @@ class Sudoku():
         for index, value in enumerate(self.presets):
             if value == '0':
                 self.subjects.append(index)
-        print(self.subjects)
+        #print(self.subjects)
 
 
 
@@ -133,15 +135,68 @@ class Sudoku():
         self.set_quadrants()
         self.determine_subjects()
 
+    def get_value(self, vertex):
+        return self.vertices[vertex]['current_value']
+
+    def set_value(self, vertex, value):
+        self.vertices[vertex].update({'current_value': value})
+
+    def get_preset(self, vertex):
+        return self.vertices[vertex]['preset']
+
+    def move(self):
+        if self.forward:
+            self.cursor += 1
+        else:
+            self.cursor -= 1
+
+    def increment(self):
+        value = self.get_value(self.cursor)
+        self.set_value(self.cursor, value + 1)
+
+    def print_status(self):
+#        self.print_values('current_value')
+#        print(f'solution status: {self.check_solution()}')
+#        print(f'cursor: {self.cursor}')
+        if self.forward:
+            print('>>>>>')
+        else:
+            print('<<<<<')
+#        print(f'iterations: {self.iterations}')
+
+
 def main():
     s = Sudoku(r'grids/grid_wikipedia.txt')
     s.initialize()
     s.print_values('current_value')
+    cursor = 0
 
-    while s.solved == False:
-        pass
+    while True:
 
+        try:
+            if s.get_preset(s.cursor):
+                move()
+            else:
+                if s.get_value(s.cursor) == 0:
+                    pass
+                pass
+                if s.get_value(s.cursor) <= 9 and s.check_solution():
+                    s.forward = True
+                    s.move()
+                elif s.get_value(s.cursor) <= 9 and not s.check_solution():
+                    s.increment()
+                else:
+                    pass
 
+            s.iterations += 1
+            s.print_status()
+        except IndexError:
+            print('no solution found')
+            break
+
+        if cursor == 80 and s.checkSolution():
+            print('solution found!')
+            break
 
 
 if __name__ == "__main__":
