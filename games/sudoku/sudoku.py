@@ -12,7 +12,7 @@ class Sudoku():
         self.quadrants = []
         self.subjects = []
         self.cursor = -1
-        self.forward = True
+        self.stay = False
 
     def check_solution(self):
         correct = True
@@ -119,6 +119,12 @@ class Sudoku():
             elif 6 <= row < 9 and  6 <= col < 9:
                 self.vertices[i]['quadrant'] = 8
 
+    def initialize_cursor(self):
+        self.cursor = 0
+        while self.get_preset(self.cursor):
+            self.cursor += 1
+        self.cursor_initial = self.cursor
+
     def print_values(self, key):
         values = []
         for i in range(81):
@@ -134,6 +140,7 @@ class Sudoku():
         self.create_vertices()
         self.set_quadrants()
         self.determine_subjects()
+        self.initialize_cursor()
 
     def get_value(self, vertex):
         return self.vertices[vertex]['current_value']
@@ -144,59 +151,81 @@ class Sudoku():
     def get_preset(self, vertex):
         return self.vertices[vertex]['preset']
 
-    def move(self):
-        if self.forward:
-            self.cursor += 1
-        else:
-            self.cursor -= 1
+    def print_status(self):
+        self.print_values('current_value')
+        print(f'solution status: {self.check_solution()}')
+        print(f'cursor: {self.cursor}')
+        print(f'iterations: {self.iterations}')
 
     def increment(self):
         value = self.get_value(self.cursor)
         self.set_value(self.cursor, value + 1)
 
-    def print_status(self):
-#        self.print_values('current_value')
-#        print(f'solution status: {self.check_solution()}')
-#        print(f'cursor: {self.cursor}')
-        if self.forward:
-            print('>>>>>')
-        else:
-            print('<<<<<')
-#        print(f'iterations: {self.iterations}')
+    def move_forward(self):
+        self.cursor += 1
+        if self.get_preset(self.cursor):
+            self.move_forward()
 
+    def move_backward(self):
+        self.cursor -= 1
+        if self.cursor < self.cursor_initial:
+            self.cursor = self.cursor_initial
+        elif self.get_preset(self.cursor):
+            self.move_backward()
+        else:
+            pass
+
+    def cursor_value(self):
+        return self.get_value(self.cursor)
 
 def main():
     s = Sudoku(r'grids/grid_wikipedia.txt')
     s.initialize()
-    s.print_values('current_value')
-    cursor = 0
+    print('foo')
 
-    while True:
 
-        try:
-            if s.get_preset(s.cursor):
-                move()
-            else:
-                if s.get_value(s.cursor) == 0:
-                    pass
-                pass
-                if s.get_value(s.cursor) <= 9 and s.check_solution():
-                    s.forward = True
-                    s.move()
-                elif s.get_value(s.cursor) <= 9 and not s.check_solution():
-                    s.increment()
-                else:
-                    pass
+    while True and s.cursor in range(0,81):
 
-            s.iterations += 1
-            s.print_status()
-        except IndexError:
-            print('no solution found')
+        #os.system('clear')
+
+        print('vvvvvvvvvv')
+        print(f'cursor: {s.cursor}')
+        s.print_values('current_value')
+
+        s.increment()
+        solution = s.check_solution()
+        value = s.cursor_value()
+
+        if value < 9 and not solution:
+            print('value < 9, no solution')
+            continue
+        elif value >= 9 and not solution:
+            print('value == 9, no solution')
+            s.set_value(s.cursor, 0)
+            print('moving backward')
+            s.move_backward()
+        elif value <= 9 and solution:
+            print('value < 9, solution')
+            s.move_forward()
+        else:
+            print('pass')
+            pass
+
+
+
+
+        print(f'cursor : {s.cursor}')
+        s.print_values('current_value')
+        #s.print_status()
+        print('^^^^^^^^^^')
+
+        if s.iterations > 10:
             break
-
-        if cursor == 80 and s.checkSolution():
+        elif s.cursor > 80 and s.checkSolution():
             print('solution found!')
             break
+        else:
+            pass
 
 
 if __name__ == "__main__":
