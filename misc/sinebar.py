@@ -5,12 +5,12 @@ length = 10
 
 def print_bar(progress, scale = 0.2):
 
-    remaining = int((100 - progress) * scale)
-    progress = int(progress * scale)
+    remaining = (100 - progress)
+    progress = progress * scale
 
     #print(remaining, progress)
 
-    print('|' + progress * '=' + remaining * ' ' + '|')
+    print('|' + progress * '=' + remaining * ' ' + '|', end = '\r')
 
 progress = 0
 
@@ -20,7 +20,6 @@ while True:
         progress += 1
         print_bar(progress)
         time.sleep(0.1)
-        print('\r')
 
         if progress >= 100:
             progress = 0
