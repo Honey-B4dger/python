@@ -2,7 +2,7 @@ import re
 import os
 import time
 
-file_name = r'grids/grid_wikipedia.txt'
+file_name = r'grids/grid_anti-brute.txt'
 field = []
 imported_field = []
 coordinates = []
@@ -20,6 +20,12 @@ def init_field():
             coordinates.append((row, column))
         field.append(row_temp)
 
+def progress_bar():
+    progress = int(cursor / len(relevants) * 100)
+    remaining = 100 - progress
+    output = '[' + progress * '#' + remaining * '.' + ']'
+
+    return(output)
 
 def import_field(file):
     global imported_field
@@ -156,6 +162,8 @@ if __name__ == '__main__':
                 os.system('clear')
                 print_(imported_field)
                 print(f'iterations: {iterations}')
+                print('')
+                print(progress_bar())
         except IndexError:
             break
 
