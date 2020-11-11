@@ -1,7 +1,8 @@
 import re
 import os
+import time
 
-file_name = r'grids/grid_1.txt'
+file_name = r'grids/grid_wikipedia.txt'
 field = []
 imported_field = []
 coordinates = []
@@ -15,8 +16,7 @@ def init_field():
     for row in range(9):
         row_temp = []
         for column in range(9):
-            index = 10 * row + column
-            row_temp.append(index)
+            row_temp.append([])
             coordinates.append((row, column))
         field.append(row_temp)
 
@@ -73,14 +73,16 @@ def create_slices(coords):
     return slices
 
 def print_(array):
-    for line in array:
-        print(line)
+    for y, row in enumerate(array):
+        print(row)
     print('')
 
 def initialize():
+    global start_time
     init_field()
     import_field(file_name)
     create_relevants()
+    start_time = time.time()
 
 def validate():
     global cursor
@@ -125,30 +127,37 @@ if __name__ == '__main__':
     print_(imported_field)
 
     while True:
-        coords = relevants[cursor]
-        value = get_value()
+        try:
+            coords = relevants[cursor]
+            value = get_value()
 
-        if value in range(9):
-            increment()
-            valid = validate()
-            if validate():
-                cursor += 1
-        else:
-            backtrack()
-        iterations += 1
+            if value in range(9):
+                increment()
+                valid = validate()
+                if valid and cursor != len(relevants) - 1:
+                    cursor += 1
+                elif valid and cursor == len(relevants) -1:
+                    os.system('clear')
+                    print('sudoku solved :)')
+                    print('')
+                    print_(imported_field)
+                    print(f'iterations: {iterations}')
+                    elapsed = round(time.time() - start_time, 1)
+                    print(f'elapsed time: {elapsed} s')
+                    break
+                else:
+                    pass
 
-        if iterations%1000 == 0:
-            os.system('clear')
-            print_(imported_field)
-            print(f'iterations: {iterations}')
+            else:
+                backtrack()
+            iterations += 1
 
-        if validate() and cursor == len(relevants) -1:
-            print('solved')
-            print_(imported_field)
-            print(f'iterations: {iterations}')
+            if iterations%1000 == 0:
+                os.system('clear')
+                print_(imported_field)
+                print(f'iterations: {iterations}')
+        except IndexError:
             break
-        elif not validate() and cursor == len(relevants) -1:
-            print('no solution found. :()')
 
 
 
