@@ -2,7 +2,7 @@ import re
 import os
 import time
 
-file_name = r'grids/grid_anti-brute.txt'
+file_name = r'grids/grid_wikipedia.txt'
 field = []
 imported_field = []
 coordinates = []
@@ -78,8 +78,8 @@ def create_slices(coords):
 
     return slices
 
-def print_(array):
-    for y, row in enumerate(array):
+def print_():
+    for y, row in enumerate(imported_field):
         print(row)
     print('')
 
@@ -130,7 +130,7 @@ def backtrack():
 
 if __name__ == '__main__':
     initialize()
-    print_(imported_field)
+    print_()
 
     while True:
         try:
@@ -146,7 +146,7 @@ if __name__ == '__main__':
                     os.system('clear')
                     print('sudoku solved :)')
                     print('')
-                    print_(imported_field)
+                    print_()
                     print(f'iterations: {iterations}')
                     elapsed = round(time.time() - start_time, 1)
                     print(f'elapsed time: {elapsed} s')
@@ -160,7 +160,8 @@ if __name__ == '__main__':
 
             if iterations%1000 == 0:
                 os.system('clear')
-                print_(imported_field)
+                print('\n\n')
+                print_()
                 print(f'iterations: {iterations}')
                 print('')
                 print(progress_bar())
