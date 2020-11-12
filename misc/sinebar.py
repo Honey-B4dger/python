@@ -1,28 +1,28 @@
 import math
 import time
+import os
 
-length = 10
+degrees = 0
 
-def print_bar(progress, scale = 0.2):
+def print_bar(progress):
 
     remaining = (100 - progress)
-    progress = progress * scale
+    progress = progress
 
-    #print(remaining, progress)
+    print('[' + progress * '=' + remaining * '.' + ']', end = '\r')
 
-    print('|' + progress * '=' + remaining * ' ' + '|', end = '\r')
-
-progress = 0
-
-
+os.system('clear')
 while True:
+
     try:
-        progress += 1
+        progress = int( 50 * math.sin(math.radians(degrees)) + 50)
         print_bar(progress)
+        degrees += 5
         time.sleep(0.1)
 
-        if progress >= 100:
-            progress = 0
+        if degrees >= 360:
+            degrees = 0
+
     except KeyboardInterrupt:
         break
 
