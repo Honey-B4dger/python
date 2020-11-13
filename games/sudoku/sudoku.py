@@ -2,11 +2,7 @@ import re
 import os
 import time
 
-<<<<<<< HEAD
 file_name = r'grids/grid_wikipedia.txt'
-=======
-file_name = r'grids/grid_difficult.txt'
->>>>>>> 86774f5af17717b3d315582bf13262761556c0a8
 field = []
 imported_field = []
 coordinates = []
@@ -15,8 +11,6 @@ cursor = 0
 iterations = 0
 
 def init_field():
-    global field
-    global coordinates
     for row in range(9):
         row_temp = []
         for column in range(9):
