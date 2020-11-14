@@ -2,7 +2,7 @@ import re
 import os
 import time
 
-file_name = r'grids/grid_wikipedia.txt'
+file_name = r'grids/grid_anti-brute.txt'
 field = []
 imported_field = []
 coordinates = []
@@ -163,8 +163,15 @@ if __name__ == '__main__':
                 print(f'iterations: {iterations}')
                 print('')
                 print(progress_bar())
-        except IndexError:
+
+        except (IndexError, KeyboardInterrupt):
+            print(f'no solution after {iterations} iterations')
+            print('solving interrupted')
             break
+
+        finally:
+            pass
+
 
 
 
