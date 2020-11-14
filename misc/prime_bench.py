@@ -1,6 +1,9 @@
 import time
+import sys
 
-max_range = 100000
+args = sys.argv
+
+max_range = int(sys.argv[1])
 interval = 1000
 max_prime = 2
 
@@ -26,4 +29,4 @@ if __name__ == '__main__':
         print('')
         print(f'maximum range: {max_range}')
         print(f'final max_prime: {max_prime}')
-        print(f'elapsed time: {round(time.time() - start,1)} s')
+        print(f'elapsed time: {round(time.time() - start)} s')
