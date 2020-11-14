@@ -1,6 +1,6 @@
 import time
 
-max_range = 10000
+max_range = 100000
 interval = 1000
 max_prime = 2
 

@@ -11,7 +11,7 @@ def write_element(row, column):
     global width, height
 
     arg = column/width * 2 * math.pi
-    y_max = abs(height * math.cos(arg + phase))
+    y_max = abs(height + height * math.cos(arg + phase))
 
     if row >= y_max:
         return 'O'
