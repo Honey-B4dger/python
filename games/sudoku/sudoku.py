@@ -2,7 +2,7 @@ import re
 import os
 import time
 
-file_name = r'grids/grid_anti-brute.txt'
+file_name = r'grids/grid_wikipedia.txt'
 field = []
 imported_field = []
 coordinates = []
