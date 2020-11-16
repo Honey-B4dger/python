@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 plt.style.use('fivethirtyeight')
-#plt.xkcd()
+plt.xkcd()
 
 
 # Language Popularity
