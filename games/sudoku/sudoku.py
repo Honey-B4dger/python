@@ -19,8 +19,8 @@ def init_field():
         field.append(row_temp)
 
 def progress_bar():
-    progress = int(cursor / len(relevants) * 100)
-    remaining = 100 - progress
+    progress = int(cursor / len(relevants) * 50)
+    remaining = 50 - progress
     output = '[' + progress * '#' + remaining * '.' + ']'
 
     return(output)
@@ -28,15 +28,8 @@ def progress_bar():
 def import_field(file):
     global imported_field
     with open(file, 'r') as f:
-        content = f.readlines()
-        output = []
-        for line in content:
-            output.append(line.strip().split())
-        imported_field = output
-
-    for y, row in enumerate(imported_field):
-        for x, column in enumerate(imported_field):
-            imported_field[y][x] = int(imported_field[y][x])
+        for line in f:
+            imported_field.append([int(i) for i in line.strip().split()])
 
 def get_quadrant(coords):
     row = coords[0]
@@ -77,9 +70,20 @@ def create_slices(coords):
     return slices
 
 def print_():
-    for y, row in enumerate(imported_field):
-        print(row)
-    print('')
+    global imported_field
+    separate = lambda: print('+' + 3 * '-------+')
+    separate()
+    for y, row in enumerate(imported_field,1):
+        row_temp = '| '
+        for x, value in enumerate(row,1):
+            if x % 3 == 0:
+                row_temp += str(value) + ' | '
+            else:
+                row_temp += str(value) + ' '
+        print(row_temp)
+        if y % 3 == 0:
+            separate()
+
 
 def initialize():
     global start_time
@@ -161,7 +165,7 @@ if __name__ == '__main__':
                 print('\n\n')
                 print_()
                 print(f'iterations: {iterations}')
-                print('')
+                print('\n Progress:')
                 print(progress_bar())
 
         except (IndexError, KeyboardInterrupt):
