@@ -149,9 +149,9 @@ if __name__ == '__main__':
                     print('sudoku solved :)')
                     print('')
                     print_()
-                    print(f'iterations: {iterations}')
+                    print(f'\niterations:\t{iterations}')
                     elapsed = round(time.time() - start_time, 1)
-                    print(f'elapsed time: {elapsed} s')
+                    print(f'elapsed time:\t{elapsed} s')
                     break
                 else:
                     pass
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                 backtrack()
             iterations += 1
 
-            if iterations%1000 == 0:
+            if iterations%10000 == 0:
                 os.system('clear')
                 print('\n\n')
                 print_()
