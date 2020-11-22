@@ -1,38 +1,48 @@
-import math
+import math as m
 import os
+import time
+import sys
 
 matrix = []
+
+width, height = 80, 30
+wl = 40
+amp = height / 2
 phase = 0
+f = 0
 
-width, height = 90, 30
-amplitude = height
-
-def write_element(row, column):
-    global width, height
-
-    arg = column/width * 2 * math.pi
-    y_max = abs(height + height * math.cos(arg + phase))
-
-    if row >= y_max:
-        return 'O'
-    else:
-        return ' '
-
-def write_matrix():
-    global matrix
+def matrix_init():
     for row in range(height):
-        row_temp = []
-        for column in range(width):
-            row_temp.append(write_element(row, column))
-        matrix.append(row_temp)
+        matrix.append([' ' for i in range(width)])
 
+def matrix_fill():
+    for y, row in enumerate(matrix):
+        for x, value in enumerate(row):
+            y_limit = amp + amp * f * m.sin(2 * m.pi * (x/wl + phase/360))
+            if y >= y_limit:
+                matrix[y][x] = 'O'
+            else:
+                matrix[y][x] = ' '
 
-def main():
-
-    write_matrix()
-
+def matrix_print():
     for line in matrix:
         print(''.join(line))
 
 if __name__ == '__main__':
-    main()
+    matrix_init()
+    try:
+        while True:
+            os.system('clear')
+            matrix_fill()
+
+            matrix_print()
+
+            f = m.sin(2 * m.pi * phase/360)
+
+            phase += 10
+            if phase > 360:
+                phase = 0
+
+            time.sleep(.1)
+    except KeyboardInterrupt:
+        sys.exit()

@@ -2,7 +2,7 @@ import re
 import os
 import time
 
-file_name = r'grids/grid_wikipedia.txt'
+file_name = r'grids/grid_difficult.txt'
 field = []
 imported_field = []
 coordinates = []
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                 backtrack()
             iterations += 1
 
-            if iterations%10000 == 0:
+            if iterations%1000000 == 0:
                 os.system('clear')
                 print('\n\n')
                 print_()

@@ -1,93 +1,76 @@
-class Connect4():
-    def __init__(self):
-        self.columns = 7
-        self.rows = 6
-        self.players = ['', '']
-        self.game_over = False
-        self.player_1_wins = False
-        self.player_2_wins = False
-        self.current_setup = []
-        self.topped = [False for i in range(self.columns)]
-        self.create_initial_state()
-        self.slices = ['' for i in range(self.columns)]
-        self.four_in_a_row = False
-        self.topped_off = False
+import os
+from slicer import *
 
-    def create_initial_state(self):
-        setup = []
+# einfache Funktion für 'clear'
+cls = lambda: os.system('clear')
 
-        for row in range(self.rows):
-            setup.append(['.' for i in range(self.columns)])
+continue_ = lambda: input('Zum Fortsetzen die Eingabetaste drücken. ')
 
-        self.current_setup = setup
+# Spielfeld initialisieren
+def grid_init():
+    for row in range(6):
+        row_temp =[]
+        for column in range(7):
+            row_temp.append(' ')
+        grid.append(row_temp)
 
-    def print_current_setup(self):
-        for row in self.current_setup:
-            print(''.join(row))
+# das aktuelle Spielfeld ausgeben
+def grid_print():
+    separator = lambda: print('+' + 7 * '---+')
+    separator()
+    for y, line in enumerate(grid, 1):
+        print('| ' + ' | '.join(line) + ' |')
+        separator()
 
-    def drop(self,column, symbol):
-        row = self.rows - 1
+def drop(column):
+    global turn
+    column -= 1
+    if turn % 2 == 0:
+        symbol = 'O'
+    else:
+        symbol = 'X'
+    v_slice = [row[column] for row in grid]
 
-        if self.topped[column]:
-            print(f"Spalte {column + 1} is schon voll!")
+    for y in range(-1, -7, -1):
+        value = v_slice[y]
+        if value == ' ':
+            grid[y][column] = symbol
+            return True
+        if y == -6 and value != ' ':
+            return False
 
-        while row >= 0 and self.topped[column] != True:
-            if self.current_setup[row][column] == '.':
-                self.current_setup[row][column] = symbol
-                if row == 0:
-                    self.topped[column] = True
-                break
-            else:
-                row -= 1
-
-    def create_slices(self):
-# horizontal
-        for columns in range(self.columns):
-            for rows in range(self.rows):
-                self.slices[columns] += self.current_setup[rows][columns]
-
-# vertikal
-        for rows in self.current_setup:
-            self.slices.append(''.join(rows))
-# nach rechts unten
-# 
-
-    def check_slices(self):
-        for slices in self.slices:
-            if 'XXXX' in slices:
-                self.player_1_wins = True
-                self.game_over = True
-                self.four_in_a_row = True
-            elif 'OOOO' in slices:
-                self.player_2_wins = True
-                self.game_over = True
-                self.four_in_a_row = True
-
-    def check_tops(self):
-        if False not in self.topped:
-            self.topped_off = True
-            self.game_over = True
-
-    def get_names(self):
-        pass
-
-    def print_status(self):
-        print(f"Game Over : {self.game_over}")
-        print(f"Players : {self.players}")
-        print(f"Player 1 wins : {self.player_1_wins}")
-        print(f"Player 2 wins : {self.player_2_wins}")
-        print(f"Topped : {self.topped}")
-
-        for element in self.slices:
-            print(element)
-
-    def print_playfield(self):
-        print('+=============================+')
-        for row in range(self.rows):
-            print('+| ' + ' | '.join(self.current_setup[row]) + ' |+')
-            if row != -self.rows:
-                print('+-----------------------------+')
-            else:
-                print('+=============================+')
+def topped_off(grid):
+    if ' ' in grid[0]:
+        return False
+    else:
+        return True
 
 
+
+if __name__ == '__main__':
+
+    grid = []
+    turn = 0
+    players = ['Spieler 1', 'Spieler 2',]
+    connected_4 = False
+    game_over = False
+    topped_off = False
+    grid_init()
+    cls()
+
+    while not connected_4 and not game_over:
+        player = players[turn%2]
+
+        cls()
+        print(f'{player} ist an der Reihe.')
+        print(f'Runde: {turn}')
+        grid_print()
+
+        spalte = int(input(f'In welche Spalte möchtest du werfen'))
+        drop(spalte)
+
+        print(check_grid(grid))
+
+        continue_()
+
+        turn += 1
