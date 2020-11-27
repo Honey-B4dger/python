@@ -12,7 +12,7 @@ with open('daten.csv', 'w') as f:
         for factor in range(1,4):
             temp.append(base * factor + 1)
         #und die entsprechende Zeile mit \n schreiben
-        f.write(','.join([str(num) for num in temp]) + '\n')
+        f.write(', '.join([str(num) for num in temp]) + '\n')
 
 #os.system('cat daten.csv')
 
@@ -22,11 +22,12 @@ with open('daten.csv', 'r') as f:
         content.append(line.strip().split(','))
 
 with open('daten_mod.csv', 'w') as f:
+    f.write(',\t'.join(['x', 'y1', 'y2', 'y3']) + '\n')
     for line in content:
         summe = sum([float(element) for element in line])
         line.append(summe)
         strngs = [str(element) for element in line]
-        f.write(','.join(strngs) + '\n')
+        f.write(',\t'.join(strngs) + '\n')
 
 os.system('cat daten_mod.csv')
 
