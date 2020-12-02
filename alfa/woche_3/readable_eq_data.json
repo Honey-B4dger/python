@@ -1,0 +1,40 @@
+{
+    "type": "Feature",
+    "properties": {
+        "mag": 0.96,
+        "place": "8km NE of Aguanga, CA",
+        "time": 1550360775470,
+        "updated": 1550360993593,
+        "tz": -480,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci37532978",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci37532978.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 14,
+        "net": "ci",
+        "code": "37532978",
+        "ids": ",ci37532978,",
+        "sources": ",ci,",
+        "types": ",geoserve,nearby-cities,origin,phase-data,",
+        "nst": 32,
+        "dmin": 0.02648,
+        "rms": 0.15,
+        "gap": 37,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 1.0 - 8km NE of Aguanga, CA"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            -116.7941667,
+            33.4863333,
+            3.22
+        ]
+    },
+    "id": "ci37532978"
+}
