@@ -1,0 +1,7 @@
+SUDOKU
+
+- brute force
+- wenig tkinter
+- unit testing
+- Ergbenis plotten?
+- Timing

@@ -34,8 +34,8 @@ class eqPlotter():
         ax.coastlines(linewidth=0.3)
         ax.coastlines(linewidth=0.3)
 
-        ax.set_xlabel('Latitude [°]')
-        ax.set_ylabel('Longitude [°]')
+        ax.set_xlabel('Latitude [deg]')
+        ax.set_ylabel('Longitude [deg]')
 
         ax.scatter(lats, longs, c=mags, cmap=plt.cm.rainbow, s = [mags_scl], alpha=.7,
                   edgecolors='none')
