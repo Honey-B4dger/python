@@ -19,14 +19,13 @@ with open(file) as f:
             data[labels[column]].append(int(value))
 
 fig = plt.figure()
-
 ax = plt.axes(projection='3d')
 
 rows = data['row']
 columns = data['column']
 iterations = data['iteration']
 
-ax.scatter3D(rows, columns, iterations, c=iterations, cmap=cm.coolwarm)
+ax.plot3D(rows, columns, iterations, c=iterations, cmap=cm.rainbow, alpha=.5)
 ax.set_xlabel('row')
 ax.set_ylabel('column')
 ax.set_zlabel('iteration')
