@@ -1,7 +1,8 @@
 SUDOKU
 
-- brute force
-- wenig tkinter
+- backtracking, brute force
 - unit testing
-- Ergbenis plotten?
-- Timing
+- Ergbenis plotten? json? Angelehnt an random walk? Statistik? Timing?
+- wenig tkinter -> evtl. Interface für Eingabe der Grundlage?
+
+Hangman
