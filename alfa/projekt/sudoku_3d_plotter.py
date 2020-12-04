@@ -25,7 +25,7 @@ rows = data['row']
 columns = data['column']
 iterations = data['iteration']
 
-ax.plot3D(rows, columns, iterations, c=iterations, cmap=cm.rainbow, alpha=.5)
+ax.scatter3D(rows, columns, iterations, c=iterations, cmap=cm.rainbow)
 ax.set_xlabel('row')
 ax.set_ylabel('column')
 ax.set_zlabel('iteration')
