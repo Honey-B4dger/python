@@ -1,4 +1,4 @@
-import csv
+import csv 
 import os
 import sys
 import json
@@ -9,10 +9,10 @@ from sudoku import Sudoku
 files = [
         'easiest',
         'intermediate',
-        'difficult',
+        #'difficult',
         'foo',
         'unsolvable',
-#        'not_fun',
+        'not_fun',
         'wikipedia',
         ]
 
