@@ -7,13 +7,13 @@ from heatmap import Heatmap
 from sudoku import Sudoku
 
 files = [
-        'easiest',
-        'intermediate',
+        #'easiest',
+        #'intermediate',
         #'difficult',
         'foo',
         'unsolvable',
-        'not_fun',
-        'wikipedia',
+        #'not_fun',
+        #'wikipedia',
         ]
 
 if __name__ == '__main__':
