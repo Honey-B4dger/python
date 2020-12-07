@@ -1,11 +1,16 @@
 import csv
 import os
 import sys
+import json
+import time
+from heatmap import Heatmap
 
 class Sudoku():
     """ Diese Klasse dient zum Lösen eines Sudokus.
-    Es kann ein Feld eingelesen werden und - falls möglich - mit Hilfe eines
-    Backtracking-Algorithmus gelöst werden.
+    Es kann ein Gitter eingelesen werden und - falls eine Loesung existiert -
+    mit Hilfe eines Backtracking-Algorithmus gelöst werden.
+
+    Mit dem Keyword-Argument "recording = True" können Daten aufgezeichnet werden
     """
 
     def __init__(self, file, **kwargs):
@@ -18,25 +23,25 @@ class Sudoku():
         self.coordinates = []
         self.cursor = 0
         self.iterations = 0
+        self.solution = []
+        self.exceptions = []
+        #pruefen, ob eine Datenaufzeichnung per kwarg gewünscht ist
         try:
             self.recording = kwargs['recording']
         except:
             pass
-
-
-#        if 'recording' in self.kwargs.keys():
-#            self.recording = kwargs['recording']
-#            self.log = []
+        else:
+            self.data = {}
 
     #Grid aus einer .csv-Datei einlesen
     def grid_read(self):
-        with open(r'grids/' + self.file) as f:
+        with open(r'grids/' + self.file + '.csv') as f:
             content = csv.reader(f)
             for row in content:
                 #kleine list comprehension um die Values als int zu speichern
                 self.grid.append([int(i) for i in row])
 
-    #Das aktuelle Grid beautified ausgeben
+    #Das aktuelle Grid "beautified" ausgeben
     def grid_print(self):
         print_horizontal_separator = lambda: print('+' + '-------+' * 3)
         print_horizontal_separator()
@@ -68,7 +73,7 @@ class Sudoku():
 
     def check_cursor(self):
         result = True
-        #list mir 3 lists erzeugen
+        #list fuer 3 Slices (hor, vert, quadrant)rzeugen
         slices = [[] for i in range(3)]
         coordinates = self.relevant_vertices[self.cursor]
 
@@ -85,11 +90,14 @@ class Sudoku():
                 if self.get_sector((y,x)) == cursor_sector:
                     slices[2].append(value)
 
+        #pruefen, ob der Wert am Cursor mehr als 1 Mal pro Slice vorkommt
         for slice_ in slices:
             if slice_.count(cursor_value) > 1:
                 result = False
 
+        #wenn im letzten Feld result = True, dann ist das Raetsel geloest
         if self.cursor == (len(self.relevant_vertices) -1) and result == True:
+            self.solution = self.grid
             self.solved = True
 
         return result
@@ -109,55 +117,91 @@ class Sudoku():
         self.grid[y][x] = 0
         self.cursor -= 1
 
-    def writer_initialize(self):
-        filename = s.file.split('.')[0] + '.log'
+    def recorder_initialize(self):
+        filename = 'data/' + self.file + '.log'
         f = open(filename, 'w')
-        s.log = csv.writer(f)
+        self.log = csv.writer(f)
         header = ['iteration', 'row', 'column', 'value']
-        s.log.writerow(header)
+        self.log.writerow(header)
 
+        self.frequencies = [[] for i in range(9)]
+        for row in self.frequencies:
+            for i in range(9):
+                row.append(0)
 
     def initialize(self):
         self.grid_read()
         self.get_relevant_vertices()
-        if s.recording == True:
-            self.writer_initialize()
+        if self.recording == True:
+            self.recorder_initialize()
+            self.t_start = time.time()
 
-    def clear_terminal(self):
-        os.system('clear')
+    @staticmethod
+    def clear_terminal():
+        if os.name == 'posix':
+            os.system('clear')
+        else:
+            os.system('cls')
 
+    #ggf. die Loesung as .csv schreiben
+    #falls gewuenscht, die frequencies as .json schreiben
+    def write_final_data(self):
+        if self.solved == True:
+            with open('data/' + self.file + '_solution.csv', 'w') as f:
+                for row in self.solution:
+                    f.write(', '.join([str(i) for i in row]) + '\n')
 
+        if self.recording == True:
+            self.data['frequencies'] = self.frequencies
+            self.data['iterations'] = self.iterations
+            self.data['time'] = round(time.time() - self.t_start, 1)
+            with open('data/' + self.file + '_data.json', 'w') as f:
+                json.dump(self.data, f, indent = 4)
+            print('\nOutput data has been written.')
+        else:
+            print('\nNo data has been recorded.')
 
-if __name__ == '__main__':
-    s = Sudoku('wikipedia.csv', recording = True)
-    s.initialize()
+    def solve(self):
+        self.initialize()
 
+        while True:
+            try:
+                #ggf. Iteration, Zeile, Spalte und Wert loggen 
+                if self.recording == True:
+                    log_y, log_x = self.relevant_vertices[self.cursor]
+                    self.frequencies[log_y][log_x] += 1
+                    line = []
 
-    while True:
-        try:
-            if s.recording == True:
-                log_y, log_x = s.relevant_vertices[s.cursor]
-                line = []
+                    for el in[self.iterations, log_y, log_x, self.grid[log_y][log_x]]:
+                        line.append(el)
+                    self.log.writerow(line)
 
-                for el in[s.iterations, log_y, log_x, s.grid[log_y][log_x]]:
-                    line.append(el)
-                s.log.writerow(line)
+                #einen schritt versuchen, ggf. backtracken
+                self.step()
+                self.iterations += 1
 
-            s.step()
-            s.iterations += 1
-            if s.iterations%1000 == 0:
-                s.clear_terminal()
-                s.grid_print()
-                print(f'iterations: {s.iterations}')
+                #alle 1.000 Zyklen den aktuellen Status in der Konsole ausgeben
+                if self.iterations%5000 == 0:
+                    self.clear_terminal()
+                    print(f'Solving "{self.file}"')
+                    self.grid_print()
+                    print(f'iterations: {self.iterations}')
 
-            if s.solved == True:
-                s.clear_terminal()
-                print(f'solution found after {s.iterations} iterations!')
-                s.grid_print()
+                #falls Raetsel geloest, das Progamm beenden und Daten schreiben
+                if self.solved == True:
+                    self.clear_terminal()
+                    print(f'Sudoku {self.file} has been solved!')
+                    self.grid_print()
+                    print(f'solution found after {self.iterations} iterations!')
+                    self.write_final_data()
+                    time.sleep(2)
+                    break
+
+            #IndexError bedeutet, dass keine Loesung gefunden werden konnte
+            except Exception as e:
+                self.exceptions.append(e)
+                print(e)
                 break
-
-        except IndexError:
-            print('Sorry, IndexError')
-            break
-        except KeyboardInterrupt:
-            sys.exit()
+            #bei ctrl+D das Programm beenden
+            except KeyboardInterrupt:
+                sys.exit()
