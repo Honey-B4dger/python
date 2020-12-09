@@ -181,7 +181,7 @@ class Sudoku():
                 self.iterations += 1
 
                 #alle 1.000 Zyklen den aktuellen Status in der Konsole ausgeben
-                if self.iterations%5000 == 0:
+                if self.iterations%10000 == 0:
                     self.clear_terminal()
                     print(f'Solving "{self.file}"')
                     self.grid_print()

@@ -6,51 +6,206 @@ import time
 from heatmap import Heatmap
 from sudoku import Sudoku
 
-files = [
-        'easiest',
-        'intermediate',
-        'difficult',
-        'non_existent',
-        'unsolvable',
-        'not_fun',
-        'wikipedia',
-        ]
+
+def greet():
+    print('This is is a solver for sudoks. ')
+
+def clear_terminal():
+    if os.name == 'posix':
+        os.system('clear')
+    else:
+        os.system('cls')
+
+def get_filenames():
+    pass
+
+def continue_():
+    input('\nPress return to continue... ')
+
+def print_help():
+    print('\nYou can use the following commands:')
+    print('')
+    commands = [
+        'add <filename>',
+        'remove <filename>',
+        'print <filename>',
+        'list',
+        'files',
+        'quit',
+        'solve',
+        'clear',
+        'help',
+    ]
+    for command in commands:
+        print(f'\t- {command}')
+
+def prompt_user():
+    print('')
+    command = input('>>> ')
+    if not command:
+        prompt_user()
+    else:
+        return command.split()
+
+def print_list():
+    global files
+    if files:
+        print('You added the following files:')
+        print('')
+        for file in files:
+            print(file)
+    else:
+        print('No files added yet')
+
+#Grid aus einer .csv-Datei einlesen
+def grid_read(file):
+    grid = []
+    with open(r'grids/' + file + '.csv') as f:
+        content = csv.reader(f)
+        for row in content:
+            #kleine list comprehension um die Values als int zu speichern
+            grid.append([int(i) for i in row])
+    return grid
+
+#Das aktuelle Grid "beautified" ausgeben
+def grid_print(file):
+    grid = grid_read(file)
+    print_horizontal_separator = lambda: print('+' + '-------+' * 3)
+    print_horizontal_separator()
+
+    for y, row in enumerate(grid, 1):
+        row_temp = '| '
+        for x, value in enumerate(row, 1):
+            separator = ''
+            if x % 3 == 0 and x < 8:
+                separator = ' | '
+            else:
+                separator = ' '
+            row_temp += str(value) + separator
+        row_temp += '|'
+        print(row_temp)
+        if y % 3 == 0:
+            print_horizontal_separator()
+
+def ls():
+    print('The following grids are available in /grids:')
+    print('')
+    files = os.listdir('grids/')
+    for file in files:
+        print(file.split('.')[0])
 
 if __name__ == '__main__':
 
     solved_grids = []
     exceptions = {}
+    files = []
 
-    #nur starten, wenn auch wirklich dateien angegeben sind
-    if files:
-        for file in files:
-            try:
-                s = Sudoku(file, recording = True)
-                s.solve()
-                if s.solved == True:
-                    solved_grids.append(file)
-                if s.exceptions:
-                    exceptions[file] = s.exceptions
+    clear_terminal()
+    greet()
+    print_help()
 
-                h = Heatmap(file)
-                h.plot_data()
-            except:
-                pass
+    while True:
+        command = prompt_user()
+        if command == ['clear']:
+            clear_terminal()
+            continue
+        if command == ['list']:
+            ls()
+            continue
+        if command == ['quit']:
+            clear_terminal()
+            sys.exit()
+        elif command == ['help']:
+            print_help()
+            continue
+        elif command == ['files']:
+            print_list()
+            continue
+        elif command[0] == 'add':
+            if len(command) == 2:
+                file = command[1]
+                if file in files:
+                    print('Error: file already in files')
+                    continue
+                elif not os.path.exists('grids/' + file + '.csv'):
+                    print('Error: file does not exist')
+                    continue
+                else:
+                    print(f'Adding {file}.csv to files...')
+                    files.append(file)
+                    continue
+            else:
+                print('Error: please provide a filename')
+                continue
+        elif command[0] == 'print':
+            if len(command) == 2:
+                file = command[1]
+                if not os.path.exists('grids/' + file + '.csv'):
+                    print('Error: file does not exist')
+                    continue
+                else:
+                    grid_print(file)
+                    continue
+            else:
+                print('Error: please provide a filename')
+                continue
+        elif command[0] == 'remove':
+            if len(command) == 2:
+                file = command[1]
+                if file in files:
+                    files.remove(file)
+                    print(f'Removing {file}.csv from files...')
+                    continue
+                else:
+                    print(f'Error: {file}.csv is not in files.')
+                    files.append(file)
+                    continue
+            else:
+                print('Error: please provide a filename')
+                continue
+        elif command == ['solve']:
+            if not files:
+                print('Add some grids first...')
+                continue
+            confirmation = input('Start the test sequence? [y/n]... ')
+            if confirmation == 'y':
+                break
+            elif confirmation == 'n':
+                continue
+            else:
+                print('Error: please enter a valid command!')
+                continue
+        else:
+            print('Error: please enter a valid command!')
 
-        Sudoku.clear_terminal()
-        print('Sequence completed!')
-        print(f'\nThe following Sudokus could be solved:')
-        print('')
-        for grid in solved_grids:
-            print(f'\t- {grid}')
-        num_exceptions = len(exceptions.keys())
-        print(f'\nThere has/have been {num_exceptions} exception(s) ', end = '')
-        print('with the following file(s):')
-        print('')
 
-        for key, message in exceptions.items():
-            print(f'\t- {key}: {message}')
-        time.sleep(5)
-    else:
-        Sudoku.clear_terminal()
-        print('No files specified. :(')
+    for file in files:
+        try:
+            s = Sudoku(file, recording = True)
+            s.solve()
+            if s.solved == True:
+                solved_grids.append(file)
+            if s.exceptions:
+                exceptions[file] = s.exceptions
+
+            h = Heatmap(file)
+            h.plot_data()
+        except:
+            pass
+
+    clear_terminal()
+    print('Sequence completed!')
+    print(f'\nThe following Sudokus could be solved:')
+    print('')
+    for grid in solved_grids:
+        print(f'\t- {grid}')
+    num_exceptions = len(exceptions.keys())
+    print(f'\nThere has/have been {num_exceptions} exception(s).')
+    print('')
+
+    for key, message in exceptions.items():
+        print(f'\t- {key}: {message}')
+    time.sleep(5)
+else:
+    clear_terminal()
+    print('Error: no files specified.')
