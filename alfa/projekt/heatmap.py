@@ -31,5 +31,3 @@ class Heatmap():
         fig.colorbar(im, ax=ax)
 
         plt.savefig('data/' + self.file + '.png')
-
-        #plt.show()

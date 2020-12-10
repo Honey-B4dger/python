@@ -26,15 +26,15 @@ def print_help():
     print('\nYou can use the following commands:')
     print('')
     commands = [
-        'add <filename>',
-        'remove <filename>',
-        'print <filename>',
-        'list',
-        'files',
-        'quit',
-        'solve',
-        'clear',
-        'help',
+        'add <filename> \t-> add a file to files',
+        'remove <filename> \t-> remove a file from files',
+        'files \t\t-> print the files added to files',
+        'print <filename> \t-> print a file in the terminal',
+        'list \t\t\t-> print a file from grids/',
+        'quit \t\t\t-> quit the program',
+        'solve \t\t-> start the solving sequence',
+        'clear \t\t-> clear the terminal',
+        'help \t\t\t-> show this help',
     ]
     for command in commands:
         print(f'\t- {command}')
@@ -88,11 +88,11 @@ def grid_print(file):
             print_horizontal_separator()
 
 def ls():
-    print('The following grids are available in /grids:')
+    print('The following grids are available in grids/:')
     print('')
     files = os.listdir('grids/')
     for file in files:
-        print(file.split('.')[0])
+        print(file)
 
 if __name__ == '__main__':
 
