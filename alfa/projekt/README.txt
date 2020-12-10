@@ -1,4 +1,4 @@
-grids are stored in grids/
+  grids are stored in grids/
 
 data is written in data/
 
