@@ -6,10 +6,9 @@ import copy
 import csv
 
 class Snake():
-    def __init__(self, height, width, attempt, **kwargs):
+    def __init__(self, height, width, **kwargs):
         self.kwargs = kwargs
-        self.width = width
-        self.height = height
+        self.dimensions = (width, height)
         self.world = []
         self.buffer = []
         self.head = ()
@@ -18,8 +17,6 @@ class Snake():
         self.moves = 0
         self.terminated = False
         self.cause = ''
-        self.log = {}
-        self.attempt = attempt
         self.verbose = False
         try:
             self.verbose = self.kwargs['verbose']
@@ -44,29 +41,51 @@ class Snake():
         for row in self.buffer:
             print(''.join(row))
 
-    def move(self):
-        directions_base = {
+    def get_direction(self):
+        directions_pool = {
             'N': (-1,0),
             'E': (0,1),
             'S': (1,0),
             'W': (0,-1),
         }
 
-        directions = list(directions_base)
+        directions = list(directions_pool)
         random.shuffle(directions)
+
+
+    def get_destination(self):
+        pass
+
+    def check_destination(self):
+        pass
+
+    def eat_snack(self, foo):
+        print('eating snack...')
+        time.sleep(1)
+
+    def move(self):
+        directions_pool = {
+            'N': (-1,0),
+            'E': (0,1),
+            'S': (1,0),
+            'W': (0,-1),
+        }
+
+        directions = list(directions_pool)
+        random.shuffle(directions)
+
         while directions:
             direction = directions.pop()
             self.write_buffer()
-            current_y = self.head[0]
-            current_x = self.head[1]
-            new_y = self.head[0] + directions_base[direction][0]
-            new_x = self.head[1] + directions_base[direction][1]
+            new_y = self.head[0] + directions_pool[direction][0]
+            new_x = self.head[1] + directions_pool[direction][1]
             destination = self.buffer[new_y][new_x]
 
             if destination in ('#', 'o'):
                 continue
             elif destination == 's':
-                self.segments.append((current_y, current_x))
+                self.eat_snack()
+                self.segments.append((self.head[0], self.head[1]))
                 self.head = (new_y, new_x)
                 self.snacks.pop(0)
                 self.spawn_snack()
@@ -76,7 +95,7 @@ class Snake():
                 self.head = (new_y, new_x)
                 if self.segments:
                     self.segments.pop(0)
-                    self.segments.append((current_y, current_x))
+                    self.segments.append((self.head[0], self.head[1]))
                 self.moves += 1
                 break
         else:
@@ -88,8 +107,8 @@ class Snake():
     def spawn_head(self):
         while True:
             self.write_buffer()
-            y = random.randint(0, self.height -1)
-            x = random.randint(0, self.width - 1)
+            y = random.randint(0, self.dimensions[0] -1)
+            x = random.randint(0, self.dimensions[1] - 1)
             self.head = (y, x)
             if self.buffer[self.head[0]][self.head[1]] == ' ':
                 break
@@ -97,18 +116,21 @@ class Snake():
     def spawn_snack(self):
         while True:
             self.write_buffer()
-            y = random.randint(0, self.height -1)
-            x = random.randint(0, self.width - 1)
+            y = random.randint(0, self.dimensions[0] -1)
+            x = random.randint(0, self.dimensions[1] - 1)
             pos = (y, x)
             if self.buffer[pos[0]][pos[1]] == ' ':
                 self.snacks.append(pos)
                 break
 
+    def eat_snack(self):
+        pass
+
     def create_world(self):
         #initialize list for world
-        self.world = [[] for i in range(self.height)]
+        self.world = [[] for i in range(self.dimensions[0])]
         for row in self.world:
-            for i in range(self.width):
+            for i in range(self.dimensions[1]):
                 row.append(' ')
         #create borders
         for y, row in enumerate(self.world):
@@ -122,39 +144,28 @@ class Snake():
         self.spawn_head()
         self.spawn_snack()
 
+    def print_setup(self):
+        print(f'height x width: {self.dimensions[0]} x {self.dimensions[1]}')
+
     def main(self):
-        s.initialize()
+        self.initialize()
         while True:
             try:
-                s.move()
-                if s.verbose:
-                    s.clear_terminal()
-                    s.print_world()
+                self.move()
+                if self.verbose:
+                    self.clear_terminal()
+                    self.print_world()
                     print(f'moves: {s.moves}')
-                if s.terminated == True:
-                    self.log['moves'] = self.moves
-                    self.log['cause'] = self.cause
-                    s.clear_terminal()
-                    s.print_world()
-                    print(s.moves)
-                    print(s.attempt)
+                if self.terminated == True:
+                    self.clear_terminal()
+                    self.print_world()
+                    self.print_setup()
+                    print(f'Moves: {self.moves}')
                     break
 
             except KeyboardInterrupt:
                 sys.exit()
+#        else:
+#            self.print_setup()
 
-    def log_data(self):
-        with open('data/attempt' + str(self.attempt) + '.json', 'w') as f:
-            json.dump(self.log,f)
-
-
-if __name__ == '__main__':
-    f = open('data/log.csv', 'a')
-    writer = csv.writer(f)
-    for attempt in range(1000):
-        log_attempt = {}
-        s = Snake(10,10, attempt, verbose = False)
-        s.main()
-        writer.writerow([s.attempt, s.height, s.width, s.moves, len(s.segments)])
-
-    f.close
+main()
