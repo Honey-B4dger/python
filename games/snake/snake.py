@@ -8,20 +8,33 @@ import csv
 class Snake():
     def __init__(self, height, width, **kwargs):
         self.kwargs = kwargs
-        self.dimensions = (width, height)
+        self.dimensions = (height, width)
         self.world = []
         self.buffer = []
         self.head = ()
         self.segments = []
         self.snacks = []
         self.moves = 0
-        self.terminated = False
-        self.cause = ''
-        self.verbose = False
-        try:
-            self.verbose = self.kwargs['verbose']
-        except:
-            pass
+        self.result = ''
+        self.status = 'okay'
+        self.energy = 50
+        self.snack_increment = 100
+        self.directions = {
+            'N': (-1,0),
+            'E': (0,1),
+            'S': (1,0),
+            'W': (0,-1),
+        }
+
+        if 'v' in self.kwargs:
+            self.verbose = self.kwargs['v']
+        else:
+            self.verbose = ''
+        if 'starve' in self.kwargs:
+
+            self.starvation = self.kwargs['starve']
+        else:
+            self.starvation = False
 
     def write_buffer(self):
         self.buffer = copy.deepcopy(self.world)
@@ -36,70 +49,93 @@ class Snake():
             self.buffer[segment[0]][segment[1]] = 'o'
 
     def print_world(self):
-        self.write_buffer()
 
         for row in self.buffer:
             print(''.join(row))
 
-    def get_direction(self):
-        directions_pool = {
-            'N': (-1,0),
-            'E': (0,1),
-            'S': (1,0),
-            'W': (0,-1),
-        }
-
-        directions = list(directions_pool)
+    #random walk
+    def set_directions(self):
+        #tupel aus dictionary abgreifen
+        directions = list(self.directions)
         random.shuffle(directions)
+        return directions
 
+    def get_surroundings(self):
+        surroundings = []
+        deltas = [(-1,0), (0,1), (1,0), (0,-1)]
+        for delta in deltas:
+            y = self.head[0] + delta[0]
+            x = self.head[1] + delta[1]
+            surroundings.append(self.buffer[y][x])
+        return surroundings
 
-    def get_destination(self):
-        pass
+    def check_surroundings(self):
+        valid = False
+        surroundings = self.get_surroundings()
+        necessaries = (' ', 's')
+        for necessary in necessaries:
+            if necessary in surroundings:
+                valid = True
+        return valid
 
-    def check_destination(self):
-        pass
+    def check_status(self):
+        result = True
 
-    def eat_snack(self, foo):
-        print('eating snack...')
-        time.sleep(1)
+        if not self.check_surroundings():
+            self.status = 'out_of_moves'
+            result = False
 
-    def move(self):
-        directions_pool = {
-            'N': (-1,0),
-            'E': (0,1),
-            'S': (1,0),
-            'W': (0,-1),
-        }
+        if self.energy <= 0:
+            self.status = 'starved'
+            result = False
+        return result
 
-        directions = list(directions_pool)
-        random.shuffle(directions)
+    def eat_snack(self, new_y, new_x):
+        self.segments.append((self.head[0], self.head[1]))
+        #self.head = (new_y, new_x)
+        self.snacks.pop(0)
+        if self.starvation:
+            self.energy += self.snack_increment
+
+    def move_snake(self, new_y, new_x):
+        if self.segments:
+            self.segments.pop(0)
+            self.segments.append((self.head[0], self.head[1]))
+        self.head = (new_y, new_x)
+        self.moves += 1
+        if self.starvation:
+            self.energy -= 1
+
+    def get_destination_symbol(self, direction):
+        new_y, new_x = self.get_destination_coordinates(direction)
+        return self.buffer[new_y][new_x]
+
+    def get_destination_coordinates(self, direction):
+        new_y = self.head[0] + self.directions[direction][0]
+        new_x = self.head[1] + self.directions[direction][1]
+        return (new_y, new_x)
+
+    def step(self):
+
+        directions = self.set_directions()
 
         while directions:
-            direction = directions.pop()
-            self.write_buffer()
-            new_y = self.head[0] + directions_pool[direction][0]
-            new_x = self.head[1] + directions_pool[direction][1]
-            destination = self.buffer[new_y][new_x]
+            direction = directions.pop(0)
+            destination = self.get_destination_symbol(direction)
+            new_y, new_x = self.get_destination_coordinates(direction)
 
             if destination in ('#', 'o'):
                 continue
             elif destination == 's':
-                self.eat_snack()
-                self.segments.append((self.head[0], self.head[1]))
-                self.head = (new_y, new_x)
-                self.snacks.pop(0)
-                self.spawn_snack()
-                self.moves += 1
+                self.eat_snack(new_y, new_x)
+                self.spawn_snack(1)
+                self.move_snake(new_y, new_x)
+                directions = []
                 break
             elif destination == ' ':
-                self.head = (new_y, new_x)
-                if self.segments:
-                    self.segments.pop(0)
-                    self.segments.append((self.head[0], self.head[1]))
-                self.moves += 1
+                self.move_snake(new_y, new_x)
+                directions = []
                 break
-        else:
-            self.terminated = True
 
     def clear_terminal(self):
         os.system('clear')
@@ -113,18 +149,19 @@ class Snake():
             if self.buffer[self.head[0]][self.head[1]] == ' ':
                 break
 
-    def spawn_snack(self):
-        while True:
-            self.write_buffer()
-            y = random.randint(0, self.dimensions[0] -1)
-            x = random.randint(0, self.dimensions[1] - 1)
-            pos = (y, x)
-            if self.buffer[pos[0]][pos[1]] == ' ':
-                self.snacks.append(pos)
-                break
-
-    def eat_snack(self):
-        pass
+    def spawn_snack(self, amount):
+        if len(self.snacks) >= amount:
+            pass
+        else:
+            for i in range(amount - len(self.snacks)):
+                while True:
+                    self.write_buffer()
+                    y = random.randint(0, self.dimensions[0] -1)
+                    x = random.randint(0, self.dimensions[1] - 1)
+                    pos = (y, x)
+                    if self.buffer[pos[0]][pos[1]] == ' ':
+                        self.snacks.append(pos)
+                        break
 
     def create_world(self):
         #initialize list for world
@@ -142,30 +179,86 @@ class Snake():
     def initialize(self):
         self.create_world()
         self.spawn_head()
-        self.spawn_snack()
+        self.spawn_snack(1)
 
     def print_setup(self):
         print(f'height x width: {self.dimensions[0]} x {self.dimensions[1]}')
 
+    def print_status(self):
+        self.clear_terminal()
+        self.print_world()
+        print(f'moves: {self.moves}')
+
+    def finish(self):
+        if self.verbose in ('minimal', 'very'):
+            self.clear_terminal()
+            self.print_world()
+            self.print_setup()
+            print(f'Moves: {self.moves}')
+            print(f'reason: {self.status}')
+            time.sleep(1)
+
     def main(self):
         self.initialize()
         while True:
-            try:
-                self.move()
-                if self.verbose:
-                    self.clear_terminal()
-                    self.print_world()
-                    print(f'moves: {s.moves}')
-                if self.terminated == True:
-                    self.clear_terminal()
-                    self.print_world()
-                    self.print_setup()
-                    print(f'Moves: {self.moves}')
-                    break
 
-            except KeyboardInterrupt:
-                sys.exit()
-#        else:
-#            self.print_setup()
+            self.write_buffer()
+            self.check_status()
 
-main()
+            if self.status != 'okay':
+                self.finish()
+                break
+            elif self.status == 'okay':
+                try:
+                    self.step()
+                    if self.verbose == 'very':
+                        self.print_status()
+                except KeyboardInterrupt:
+                    sys.exit()
+            else:
+                break
+
+class Snake_version_2(Snake):
+
+    def set_directions(self):
+        #tupel aus dictionary abgreifen
+        directions = list(self.directions)
+        random.shuffle(directions)
+
+        snack_y = self.snacks[0][0]
+        snack_x = self.snacks[0][1]
+        head_y, head_x = self.head
+
+        if random.randint(0,1):
+            if head_y < 3:
+                directions.remove('S')
+                directions.insert(0, 'S')
+            elif head_y > self.dimensions[0] - 2:
+                directions.remove('N')
+                directions.insert(0, 'N')
+            else:
+                pass
+            if head_x < 3:
+                directions.remove('E')
+                directions.insert(0, 'E')
+            elif head_y > self.dimensions[0] - 2:
+                directions.remove('W')
+                directions.insert(0, 'W')
+            else:
+                pass
+
+        if head_y == snack_y and head_x > snack_x:
+            directions.remove('W')
+            directions.insert(0, 'W')
+        elif head_y == snack_y and head_x < snack_x:
+            directions.remove('E')
+            directions.insert(0, 'E')
+        elif head_x == snack_x and head_y < snack_y:
+            directions.remove('S')
+            directions.insert(0, 'S')
+        else:
+            directions.remove('N')
+            directions.insert(0, 'N')
+
+        return directions
+

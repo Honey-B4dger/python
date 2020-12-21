@@ -4,17 +4,17 @@ import sys
 import os
 import copy
 import csv
-from snake import Snake
+from snake import *
 
 if __name__ == '__main__':
-    iterations = 100
+    iterations = 1000
     results = []
 
     for iteration in range(iterations):
         log_attempt = {}
-        s = Snake(10,10, erbose = False)
+        s = Snake_version_2(20,20, v = 'off', starve = False)
         s.main()
-        print(f'\nIteration {iteration} / {iterations}')
+        print(f'\nIteration {iteration+1} / {iterations}')
         results.append(len(s.segments))
 
     av_length = round(sum(results)/len(results), 1)
