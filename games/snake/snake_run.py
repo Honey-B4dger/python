@@ -7,12 +7,12 @@ import csv
 from snake import *
 
 if __name__ == '__main__':
-    iterations = 1000
+    iterations = 2000
     results = []
 
     for iteration in range(iterations):
         log_attempt = {}
-        s = Snake_version_2(20,20, v = 'off', starve = False)
+        s = Snake_circle(20,20, v = 'off', starve = False)
         s.main()
         print(f'\nIteration {iteration+1} / {iterations}')
         results.append(len(s.segments))

@@ -15,10 +15,10 @@ class Snake():
         self.segments = []
         self.snacks = []
         self.moves = 0
-        self.result = ''
         self.status = 'okay'
         self.energy = 50
         self.snack_increment = 100
+        self.heading = 'N'
         self.directions = {
             'N': (-1,0),
             'E': (0,1),
@@ -36,6 +36,7 @@ class Snake():
         else:
             self.starvation = False
 
+#-------------------------------------------------------------------------------
     def write_buffer(self):
         self.buffer = copy.deepcopy(self.world)
 
@@ -56,39 +57,28 @@ class Snake():
     #random walk
     def set_directions(self):
         #tupel aus dictionary abgreifen
-        directions = list(self.directions)
+        directions = list(self.directions.keys())
         random.shuffle(directions)
         return directions
 
     def get_surroundings(self):
-        surroundings = []
+        surroundings = {}
+        keys = ['N', 'E', 'S', 'W',]
         deltas = [(-1,0), (0,1), (1,0), (0,-1)]
-        for delta in deltas:
+        for index, delta in enumerate(deltas):
             y = self.head[0] + delta[0]
             x = self.head[1] + delta[1]
-            surroundings.append(self.buffer[y][x])
+            surroundings[keys[index]] = self.buffer[y][x]
         return surroundings
 
     def check_surroundings(self):
         valid = False
-        surroundings = self.get_surroundings()
+        surroundings = list(self.get_surroundings().values())
         necessaries = (' ', 's')
         for necessary in necessaries:
             if necessary in surroundings:
                 valid = True
         return valid
-
-    def check_status(self):
-        result = True
-
-        if not self.check_surroundings():
-            self.status = 'out_of_moves'
-            result = False
-
-        if self.energy <= 0:
-            self.status = 'starved'
-            result = False
-        return result
 
     def eat_snack(self, new_y, new_x):
         self.segments.append((self.head[0], self.head[1]))
@@ -115,6 +105,7 @@ class Snake():
         new_x = self.head[1] + self.directions[direction][1]
         return (new_y, new_x)
 
+#------------------------------------------------------------------------------
     def step(self):
 
         directions = self.set_directions()
@@ -136,6 +127,22 @@ class Snake():
                 self.move_snake(new_y, new_x)
                 directions = []
                 break
+
+#-------------------------------------------------------------------------------
+    def check_status(self):
+        result = True
+
+        if len(self.segments) < self.moves // 1000:
+            self.status = 'stuck'
+            result = False
+        if not self.check_surroundings():
+            self.status = 'out_of_moves'
+            result = False
+
+        if self.energy <= 0:
+            self.status = 'starved'
+            result = False
+        return result
 
     def clear_terminal(self):
         os.system('clear')
@@ -195,6 +202,7 @@ class Snake():
             self.print_world()
             self.print_setup()
             print(f'Moves: {self.moves}')
+            print(f'Segments: {len(self.segments)}')
             print(f'reason: {self.status}')
             time.sleep(1)
 
@@ -211,12 +219,14 @@ class Snake():
             elif self.status == 'okay':
                 try:
                     self.step()
-                    if self.verbose == 'very':
+                    if self.verbose == 'verbose':
                         self.print_status()
                 except KeyboardInterrupt:
                     sys.exit()
             else:
                 break
+
+###############################################################################
 
 class Snake_version_2(Snake):
 
@@ -231,34 +241,62 @@ class Snake_version_2(Snake):
 
         if random.randint(0,1):
             if head_y < 3:
-                directions.remove('S')
+                #directions.remove('S')
                 directions.insert(0, 'S')
             elif head_y > self.dimensions[0] - 2:
-                directions.remove('N')
+                #directions.remove('N')
                 directions.insert(0, 'N')
             else:
                 pass
             if head_x < 3:
-                directions.remove('E')
+                #directions.remove('E')
                 directions.insert(0, 'E')
             elif head_y > self.dimensions[0] - 2:
-                directions.remove('W')
+                #directions.remove('W')
                 directions.insert(0, 'W')
             else:
                 pass
 
         if head_y == snack_y and head_x > snack_x:
-            directions.remove('W')
+            #directions.remove('W')
             directions.insert(0, 'W')
         elif head_y == snack_y and head_x < snack_x:
-            directions.remove('E')
+            #directions.remove('E')
             directions.insert(0, 'E')
         elif head_x == snack_x and head_y < snack_y:
-            directions.remove('S')
+            #directions.remove('S')
             directions.insert(0, 'S')
         else:
-            directions.remove('N')
+            #directions.remove('N')
             directions.insert(0, 'N')
 
         return directions
 
+###############################################################################
+
+class Snake_circle(Snake):
+
+    def turn_right(self):
+        headings = ['N', 'E', 'S', 'W',]
+        location = headings.index(self.heading)
+        if location < 3:
+            self.heading = headings[location + 1]
+        else:
+            self.heading = 'N'
+
+    def set_directions(self):
+        snack_y, snack_x = self.snacks[0]
+        directions = []
+        surroundings = self.get_surroundings()
+        head_y, head_x = self.head
+        if self.head[0] <= snack_y and self.head[1] == snack_x:
+            if self.heading in ('N'):
+                directions.append('N')
+            else:
+                self.heading = 'S'
+                directions.append('S')
+        elif surroundings[self.heading] in (' ', 's'):
+            directions.append(self.heading)
+        else:
+            self.turn_right()
+        return directions
