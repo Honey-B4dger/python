@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     for iteration in range(iterations):
         log_attempt = {}
-        s = Snake_circle(20,20, v = 'off', starve = False)
+        s = Snake_circle(20,20, v = 'verbose', starve = False)
         s.main()
         print(f'\nIteration {iteration+1} / {iterations}')
         results.append(len(s.segments))

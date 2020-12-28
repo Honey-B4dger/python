@@ -289,9 +289,11 @@ class Snake_circle(Snake):
         directions = []
         surroundings = self.get_surroundings()
         head_y, head_x = self.head
-        if self.head[0] <= snack_y and self.head[1] == snack_x:
-            if self.heading in ('N'):
+        if self.head[0] < snack_y and self.head[1] == snack_x:
+            if self.heading == 'N':
                 directions.append('N')
+            elif self.heading == 'E':
+                directions.append('E')
             else:
                 self.heading = 'S'
                 directions.append('S')
