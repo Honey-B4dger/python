@@ -1,3 +1,3 @@
 import os
 
-print(os.printcwd())
+print(f'OS name: {print(os.name)}')

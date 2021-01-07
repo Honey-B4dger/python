@@ -4,13 +4,13 @@ import os
 
 class TicTacToe():
     def __init__(self):
-        #self.board = [str(i) for i in range(10)]
+        # self.board = [str(i) for i in range(10)]
         self.board = [' '] * 10
-        self.turn = 0#random.randint(0,1)
+        self.turn = 0  # random.randint(0,1)
         self.players = ['Player 1', 'Player 2']
         self.symbols = ['X', 'O']
         self.winner = ''
-        self.verbose = False
+        self.verbose = True
 
     def ask_name(self):
         name = ''
@@ -21,7 +21,7 @@ class TicTacToe():
     def ask_symbol(self):
         symbol = ''
         while symbol not in ('X', 'x', 'O', 'o'):
-            symbol = input('\nMöchtest du mit X oder O spielen? ')
+            symbol = input('\nMoechtest du mit X oder O spielen? ')
         if symbol.upper() == 'X':
             self.symbols = ['X', 'O']
         else:
@@ -38,7 +38,7 @@ class TicTacToe():
             slices.append(temp)
         for index, row in enumerate(slices):
             print(' ' + ' | '.join(row))
-            if index in (0,1):
+            if index in (0, 1):
                 print('---+---+---')
         print()
 
@@ -57,18 +57,18 @@ class TicTacToe():
 
     def make_random_move(self, symbol):
 
-        pool = list(range(1,10))
+        pool = list(range(1, 10))
         random.shuffle(pool)
         while pool:
             index = pool.pop()
             if self.square_is_free(index):
                 self.fill_square(index, symbol)
-                #self.board[index] = symbol
+                # self.board[index] = symbol
                 self.turn += 1
                 break
 
     def make_smarter_move_sides(self, symbol):
-        sides = [2, 4, 6, 8,]
+        sides = [2, 4, 6, 8, ]
         while sides:
             side = sides.pop()
             if self.square_is_free(side):
@@ -77,9 +77,8 @@ class TicTacToe():
         else:
             self.make_random_move(symbol)
 
-
     def make_smarter_move_corners(self, symbol):
-        corners = [1, 3, 7, 9,]
+        corners = [1, 3, 7, 9, ]
         while corners:
             corner = corners.pop()
             if self.square_is_free(corner):
@@ -89,32 +88,31 @@ class TicTacToe():
             self.make_random_move(symbol)
 
     def make_smarter_move_csc(self, symbol):
-        corners = [1, 3, 7, 9,]
+        corners = [1, 3, 7, 9, ]
         center = [5]
-        sides = [2, 4, 6, 8,]
+        sides = [2, 4, 6, 8, ]
 
         moves = corners + center + sides
 
         while moves:
             move = moves.pop(0)
             if self.square_is_free(move):
-                    self.fill_square(move, symbol)
-                    break
-
+                self.fill_square(move, symbol)
+                break
 
     def get_number_of_symbols(self, symbol):
         pass
 
     def check_winner(self):
         index_tuples = [
-            (1,2,3),
-            (4,5,6),
-            (7,8,9),
-            (1,4,7),
-            (2,5,8),
-            (3,6,9),
-            (1,5,9),
-            (3,5,7),
+            (1, 2, 3),
+            (4, 5, 6),
+            (7, 8, 9),
+            (1, 4, 7),
+            (2, 5, 8),
+            (3, 6, 9),
+            (1, 5, 9),
+            (3, 5, 7),
         ]
         slices = []
         for index_tuple in index_tuples:
@@ -143,14 +141,14 @@ class TicTacToe():
             os.system('cls')
 
     def main(self):
-        #self = TicTacToe()
-        #t.board = [' ', 'O', 'O', 'X', 'X', 'O', 'X', ' ', ' ', 'O', ]
-        #t.board = [' ', 'O', 'O', 'X', 'X', 'O', 'X', '0', '0', 'O', ]
+        # self = TicTacToe()
+        # t.board = [' ', 'O', 'O', 'X', 'X', 'O', 'X', ' ', ' ', 'O', ]
+        # t.board = [' ', 'O', 'O', 'X', 'X', 'O', 'X', '0', '0', 'O', ]
         while True:
             if self.verbose:
                 self.clear_terminal()
                 print(f'Runde: {self.turn}')
-            player = self.turn%2
+            player = self.turn % 2
             symbol = self.symbols[player]
             self.check_winner()
             if self.board_is_full() or self.winner:
@@ -161,9 +159,9 @@ class TicTacToe():
                 self.make_smarter_move_sides(symbol)
             if self.verbose:
                 self.print_board()
-            #time.sleep(1)
+            # time.sleep(1)
 
-#spiel beenden
+        # spiel beenden
         if self.verbose:
             self.print_board()
             print('\nGame Over.')
@@ -171,6 +169,7 @@ class TicTacToe():
                 print(f'\nGewinner: {self.winner}')
             else:
                 print('\nUnentschieden')
+
 
 if __name__ == '__main__':
     iterations = 100000
@@ -181,7 +180,7 @@ if __name__ == '__main__':
 
     for iteration in range(iterations):
         t = TicTacToe()
-        #t.clear_terminal()
+        # t.clear_terminal()
         if iteration % 1000 == 0:
             print(iteration + 1)
         t.main()
@@ -193,7 +192,7 @@ if __name__ == '__main__':
             wins_p2 += 1
 
     sum_ = wins_p1 + wins_p2 + draws
-    percentages = lambda x: round(x/sum_ * 100,1)
+    percentages = lambda x: round(x / sum_ * 100, 1)
     os.system('clear')
     print(f'\n The percentages after {iterations} iterations are:\n')
     print(percentages(wins_p1))
