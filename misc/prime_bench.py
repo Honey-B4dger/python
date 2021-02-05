@@ -3,7 +3,7 @@ import sys
 
 args = sys.argv
 
-max_range = int(sys.argv[1])
+max_range = 1000000 #int(sys.argv[1])
 interval = 1000
 max_prime = 2
 

@@ -1,3 +1,3 @@
 import os
 
-print(f'OS name: {print(os.name)}')
+print(f'OS name: {os.name}')
